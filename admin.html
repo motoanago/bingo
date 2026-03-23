@@ -4,29 +4,85 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>管理ページ</title>
 <style>
-body{font-family:sans-serif;padding:20px;}
+body{
+  font-family:sans-serif;
+  padding:20px;
+}
+select{
+  padding:8px;
+  font-size:16px;
+  margin-bottom:15px;
+}
 .row{
   display:flex;
   align-items:center;
   padding:10px 0;
   border-bottom:1px solid #ddd;
 }
-label{
-  flex:1;
+button{
+  padding:6px 12px;
+  margin-right:15px;
+}
+.done{
+  background:orange;
+  color:white;
+}
+#bingo{
+  margin-top:15px;
   font-size:18px;
+  color:red;
 }
 </style>
 </head>
 <body>
 
 <h2>管理ページ</h2>
+
+<select id="userSelect" onchange="loadStatus()">
+  <option value="">参加者を選択</option>
+</select>
+
 <div id="list"></div>
+<div id="bingo"></div>
 
 <script>
 const API="https://script.google.com/macros/s/AKfycbx0ntU_GSqSeEyrDWz0ycADO0_GnV5ynBzKidDEoBexKETndVAh2VmFh_bG_U7pS3EL/exec";
-const id=new URLSearchParams(location.search).get("id");
 
-function load(){
+let currentId = null;
+
+/* ========================= */
+/* 参加者一覧取得 */
+/* ========================= */
+function loadUsers(){
+
+ fetch(API+"?mode=getUsers")
+ .then(r=>r.json())
+ .then(users=>{
+
+   const select=document.getElementById("userSelect");
+
+   for(let i=1;i<users.length;i++){
+     const id=users[i][0];
+     const name=users[i][1];
+
+     const opt=document.createElement("option");
+     opt.value=id;
+     opt.textContent=name;
+
+     select.appendChild(opt);
+   }
+ });
+}
+
+/* ========================= */
+/* 状態取得 */
+/* ========================= */
+function loadStatus(){
+
+ const id=document.getElementById("userSelect").value;
+ if(!id) return;
+
+ currentId=id;
 
  fetch(API+"?mode=getStatus&id="+id)
  .then(r=>r.json())
@@ -36,34 +92,44 @@ function load(){
 
    for(let i=1;i<=9;i++){
 
-     const text = res.items[i] ? res.items[i][1] : "";
-     const checked = res.status[i] ? "checked" : "";
+     const text=res.items[i] ? res.items[i][1] : "";
+     const done=res.status[i];
 
      html+=`
-     <div class="row">
-       <input type="checkbox" ${checked}
-         onchange="toggle(${i})">
-       <label>${text}</label>
-     </div>`;
+       <div class="row">
+         <button class="${done?'done':''}"
+           onclick="toggle(${i})">
+           ${done?'解除':'処理'}
+         </button>
+         <span>${text}</span>
+       </div>
+     `;
    }
 
    document.getElementById("list").innerHTML=html;
+   document.getElementById("bingo").innerHTML =
+     res.bingo>0 ? "🎉 "+res.bingo+" BINGO" : "";
  });
 }
 
+/* ========================= */
+/* ON/OFF切替 */
+/* ========================= */
 function toggle(no){
 
  fetch(API,{
    method:"POST",
    body:new URLSearchParams({
      mode:"update",
-     id:id,
+     id:currentId,
      no:no
    })
- }).then(()=>load());
+ })
+ .then(r=>r.json())
+ .then(()=>loadStatus());
 }
 
-load();
+loadUsers();
 </script>
 
 </body>
