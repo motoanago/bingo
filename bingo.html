@@ -24,6 +24,11 @@ body{text-align:center;font-family:sans-serif;}
   color:red;
   margin:10px;
 }
+#username{
+  margin-top:15px;
+  font-size:18px;
+  font-weight:bold;
+}
 button{
   padding:10px 20px;
   font-size:16px;
@@ -38,6 +43,8 @@ button{
 <div class="grid" id="grid"></div>
 
 <button onclick="load()">更新</button>
+
+<div id="username"></div>
 
 <script>
 const API="https://script.google.com/macros/s/AKfycbx0ntU_GSqSeEyrDWz0ycADO0_GnV5ynBzKidDEoBexKETndVAh2VmFh_bG_U7pS3EL/exec";
@@ -68,6 +75,25 @@ function load(){
 
    document.getElementById("result").innerHTML =
      res.bingo>0 ? "🎉 "+res.bingo+" BINGO！" : "";
+
+   loadUserName(); // ← 追加
+ });
+}
+
+/* 名前取得 */
+function loadUserName(){
+
+ fetch(API+"?mode=getUsers")
+ .then(r=>r.json())
+ .then(users=>{
+
+   for(let i=1;i<users.length;i++){
+     if(users[i][0] === id){
+       document.getElementById("username").innerHTML =
+         "参加者：" + users[i][1];
+       break;
+     }
+   }
  });
 }
 
