@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ビンゴ一覧</title>
+<style>
+body{
+  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
+  margin:0;
+  padding:15px;
+  text-align:center;
+}
+h2{
+  margin-bottom:20px;
+}
+.list{
+  max-width:500px;
+  margin:auto;
+}
+.row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px;
+  margin-bottom:8px;
+  border-radius:10px;
+  background:#f2f2f2;
+  font-size:18px;
+}
+.count{
+  font-weight:bold;
+  color:#ff3b30;
+}
+button{
+  margin-top:20px;
+  padding:12px;
+  font-size:16px;
+  width:100%;
+  max-width:300px;
+  border-radius:8px;
+  border:none;
+  background:#007aff;
+  color:white;
+}
+</style>
+</head>
+<body>
+
+<h2>ビンゴ一覧</h2>
+
+<div class="list" id="list"></div>
+
+<button onclick="load()">更新</button>
+
+<script>
+const API="https://script.google.com/macros/s/AKfycbw4x60gkyKeZoNIzHPURpDzSf330S5ZhRchAr1jOvlIrWLeqHQ8vRa08iPH_ARNS3Oh/exec";
+
+function load(){
+
+ fetch(API+"?mode=getUsers")
+ .then(r=>r.json())
+ .then(users=>{
+
+   const promises = users.map(u=>{
+     return fetch(API+"?mode=getStatus&id="+u[0])
+       .then(r=>r.json())
+       .then(res=>{
+         return {
+           name:u[1],
+           bingo:res.bingo || 0
+         };
+       });
+   });
+
+   Promise.all(promises).then(results=>{
+
+     // ビンゴ数で降順ソート
+     results.sort((a,b)=>b.bingo-a.bingo);
+
+     let html="";
+
+     results.forEach(r=>{
+       html+=`
+       <div class="row">
+         <span>${r.name}</span>
+         <span class="count">${r.bingo}</span>
+       </div>`;
+     });
+
+     document.getElementById("list").innerHTML=html;
+   });
+
+ });
+}
+
+load();
+</script>
+
+</body>
+</html>
