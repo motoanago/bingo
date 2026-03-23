@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>参加登録</title>
+<style>
+body{text-align:center;font-family:sans-serif;padding:20px;}
+input,button{
+  width:80%;
+  padding:12px;
+  margin:8px;
+  font-size:16px;
+}
+#result{
+  margin-top:20px;
+  word-break:break-all;
+}
+</style>
+</head>
+<body>
+
+<h2>参加登録</h2>
+
+<input type="text" id="name" placeholder="名前を入力">
+<input type="password" id="pass" placeholder="参加パスワード">
+<button onclick="join()">登録</button>
+
+<div id="result"></div>
+
+<script>
+const API="ここにWebアプリURL";
+
+function join(){
+
+ const name=document.getElementById("name").value.trim();
+ const pass=document.getElementById("pass").value.trim();
+
+ if(!name || !pass){
+   alert("入力してください");
+   return;
+ }
+
+ fetch(API+"?mode=join&name="+encodeURIComponent(name)+"&password="+encodeURIComponent(pass))
+ .then(r=>r.json())
+ .then(res=>{
+
+   if(res.error==="wrong_password"){
+     alert("パスワードが違います");
+     return;
+   }
+
+   if(res.exists){
+     if(confirm("この名前は登録済みです。URLを再発行しますか？")){
+       showURL(res.id);
+     }
+     return;
+   }
+
+   if(res.id){
+     showURL(res.id);
+   }
+
+ });
+}
+
+function showURL(id){
+ const url=location.origin+location.pathname.replace("join.html","bingo.html")+"?id="+id;
+ document.getElementById("result").innerHTML=
+   "<p>あなた専用URL</p><a href='"+url+"'>"+url+"</a>";
+}
+</script>
+
+</body>
+</html>

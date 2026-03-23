@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ビンゴ</title>
+<style>
+body{text-align:center;font-family:sans-serif;}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:5px;
+  margin:15px;
+}
+.cell{
+  padding:20px;
+  border:1px solid #ccc;
+}
+.done{
+  background:orange;
+  color:white;
+}
+#result{
+  font-size:22px;
+  color:red;
+  margin:10px;
+}
+button{
+  padding:10px 20px;
+  font-size:16px;
+}
+</style>
+</head>
+<body>
+
+<h2>ビンゴカード</h2>
+
+<div id="result"></div>
+<div class="grid" id="grid"></div>
+
+<button onclick="load()">更新</button>
+
+<script>
+const API="ここにWebアプリURL";
+const id=new URLSearchParams(location.search).get("id");
+
+function load(){
+
+ fetch(API+"?mode=getStatus&id="+id)
+ .then(r=>r.json())
+ .then(res=>{
+
+   fetch(API+"?mode=getItems")
+   .then(r=>r.json())
+   .then(items=>{
+
+     let html="";
+     items.slice(1).forEach(i=>{
+       html+=`
+       <div class="cell ${res.status[i[0]]?'done':''}">
+         ${i[1]}
+       </div>`;
+     });
+
+     document.getElementById("grid").innerHTML=html;
+
+     document.getElementById("result").innerHTML =
+       res.bingo>0 ? "🎉 "+res.bingo+" BINGO！" : "";
+   });
+ });
+}
+
+load();
+</script>
+
+</body>
+</html>
