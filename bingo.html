@@ -8,7 +8,7 @@ body{text-align:center;font-family:sans-serif;}
 .grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:5px;
+  gap:6px;
   margin:15px;
 }
 .cell{
@@ -47,7 +47,7 @@ button{
 <div id="username"></div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbx0ntU_GSqSeEyrDWz0ycADO0_GnV5ynBzKidDEoBexKETndVAh2VmFh_bG_U7pS3EL/exec";
+const API="https://script.google.com/macros/s/AKfycbw4x60gkyKeZoNIzHPURpDzSf330S5ZhRchAr1jOvlIrWLeqHQ8vRa08iPH_ARNS3Oh/exec";
 const id=new URLSearchParams(location.search).get("id");
 
 function load(){
@@ -58,42 +58,20 @@ function load(){
 
    if(res.error) return;
 
+   document.getElementById("username").innerHTML="参加者："+res.name;
+
    let html="";
 
    for(let i=1;i<=9;i++){
-
-     const text = res.items[i] ? res.items[i][1] : "";
-     const done = res.status[i] ? "done" : "";
-
-     html+=`
-     <div class="cell ${done}">
-       ${text}
-     </div>`;
+     const text=res.items[i-1]?res.items[i-1][1]:"";
+     const done=res.status[i]?"done":"";
+     html+=`<div class="cell ${done}">${text}</div>`;
    }
 
    document.getElementById("grid").innerHTML=html;
 
-   document.getElementById("result").innerHTML =
+   document.getElementById("result").innerHTML=
      res.bingo>0 ? "🎉 "+res.bingo+" BINGO！" : "";
-
-   loadUserName(); // ← 追加
- });
-}
-
-/* 名前取得 */
-function loadUserName(){
-
- fetch(API+"?mode=getUsers")
- .then(r=>r.json())
- .then(users=>{
-
-   for(let i=1;i<users.length;i++){
-     if(users[i][0] === id){
-       document.getElementById("username").innerHTML =
-         "参加者：" + users[i][1];
-       break;
-     }
-   }
  });
 }
 
