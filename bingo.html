@@ -49,23 +49,25 @@ function load(){
  .then(r=>r.json())
  .then(res=>{
 
-   fetch(API+"?mode=getItems")
-   .then(r=>r.json())
-   .then(items=>{
+   if(res.error) return;
 
-     let html="";
-     items.slice(1).forEach(i=>{
-       html+=`
-       <div class="cell ${res.status[i[0]]?'done':''}">
-         ${i[1]}
-       </div>`;
-     });
+   let html="";
 
-     document.getElementById("grid").innerHTML=html;
+   for(let i=1;i<=9;i++){
 
-     document.getElementById("result").innerHTML =
-       res.bingo>0 ? "🎉 "+res.bingo+" BINGO！" : "";
-   });
+     const text = res.items[i] ? res.items[i][1] : "";
+     const done = res.status[i] ? "done" : "";
+
+     html+=`
+     <div class="cell ${done}">
+       ${text}
+     </div>`;
+   }
+
+   document.getElementById("grid").innerHTML=html;
+
+   document.getElementById("result").innerHTML =
+     res.bingo>0 ? "🎉 "+res.bingo+" BINGO！" : "";
  });
 }
 
