@@ -28,7 +28,7 @@ input,button{
 <div id="result"></div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbx0ntU_GSqSeEyrDWz0ycADO0_GnV5ynBzKidDEoBexKETndVAh2VmFh_bG_U7pS3EL/exec";
+const API="https://script.google.com/macros/s/AKfycbw4x60gkyKeZoNIzHPURpDzSf330S5ZhRchAr1jOvlIrWLeqHQ8vRa08iPH_ARNS3Oh/exec";
 
 function join(){
 
@@ -49,24 +49,13 @@ function join(){
      return;
    }
 
-   if(res.exists){
-     if(confirm("この名前は登録済みです。URLを再発行しますか？")){
-       showURL(res.id);
-     }
-     return;
+   if(res.exists || res.id){
+     const id=res.id;
+     const url=location.origin+location.pathname.replace("join.html","bingo.html")+"?id="+id;
+     document.getElementById("result").innerHTML=
+       "<p>あなた専用URL</p><a href='"+url+"'>"+url+"</a>";
    }
-
-   if(res.id){
-     showURL(res.id);
-   }
-
  });
-}
-
-function showURL(id){
- const url=location.origin+location.pathname.replace("join.html","bingo.html")+"?id="+id;
- document.getElementById("result").innerHTML=
-   "<p>あなた専用URL</p><a href='"+url+"'>"+url+"</a>";
 }
 </script>
 
