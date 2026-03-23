@@ -2,83 +2,52 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>管理画面</title>
+<title>管理ページ</title>
 <style>
-body{text-align:center;font-family:sans-serif;}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:5px;
-  margin:15px;
+body{font-family:sans-serif;padding:20px;}
+.row{
+  display:flex;
+  align-items:center;
+  padding:10px 0;
+  border-bottom:1px solid #ddd;
 }
-.cell{
-  padding:15px;
-  border:1px solid #ccc;
-}
-.done{
-  background:orange;
-  color:white;
-}
-button{
-  padding:10px;
-  margin:5px;
+label{
+  flex:1;
+  font-size:18px;
 }
 </style>
 </head>
 <body>
 
-<h2>管理画面</h2>
-
-<select id="user" onchange="load()"></select>
-<button onclick="load()">リロード</button>
-
-<h3 id="bingo"></h3>
-<div class="grid" id="grid"></div>
+<h2>管理ページ</h2>
+<div id="list"></div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbzvzWYVC4qK0QBsxmnb7ArZb_wfd_PJaffLubq25vbWZshG7BSXZ6isvjEzcJAV6glO/exec";
-
-function loadUsers(){
- fetch(API+"?mode=getUsers")
- .then(r=>r.json())
- .then(data=>{
-   let sel=document.getElementById("user");
-   sel.innerHTML="";
-   data.slice(1).forEach(u=>{
-     sel.innerHTML+=`<option value="${u[0]}">${u[1]}</option>`;
-   });
-   load();
- });
-}
+const API="あなたのGASのURL";
+const id=new URLSearchParams(location.search).get("id");
 
 function load(){
 
- const id=document.getElementById("user").value;
-
  fetch(API+"?mode=getStatus&id="+id)
  .then(r=>r.json())
- .then(res=> updateView(res.status,res.bingo));
-}
-
-function updateView(status,bingo){
-
- fetch(API+"?mode=getItems")
- .then(r=>r.json())
- .then(items=>{
+ .then(res=>{
 
    let html="";
-   items.slice(1).forEach(i=>{
+
+   for(let i=1;i<=9;i++){
+
+     const text = res.items[i] ? res.items[i][1] : "";
+     const checked = res.status[i] ? "checked" : "";
+
      html+=`
-     <div class="cell ${status[i[0]]?'done':''}"
-          onclick="toggle(${i[0]})">
-       ${i[1]}
+     <div class="row">
+       <input type="checkbox" ${checked}
+         onchange="toggle(${i})">
+       <label>${text}</label>
      </div>`;
-   });
+   }
 
-   document.getElementById("grid").innerHTML=html;
-
-   document.getElementById("bingo").innerHTML =
-     bingo>0 ? "現在 "+bingo+" BINGO！" : "BINGOなし";
+   document.getElementById("list").innerHTML=html;
  });
 }
 
@@ -88,15 +57,13 @@ function toggle(no){
    method:"POST",
    body:new URLSearchParams({
      mode:"update",
-     id:document.getElementById("user").value,
+     id:id,
      no:no
    })
- })
- .then(r=>r.json())
- .then(res=> updateView(res.status,res.bingo));
+ }).then(()=>load());
 }
 
-loadUsers();
+load();
 </script>
 
 </body>
