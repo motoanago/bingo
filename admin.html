@@ -9,31 +9,26 @@ body{
   padding:20px;
   text-align:center;
 }
-
 select{
   padding:8px;
   font-size:16px;
   margin-bottom:20px;
 }
-
 .grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
   gap:8px;
 }
-
 .cell{
   padding:20px;
   border:1px solid #ccc;
   cursor:pointer;
   user-select:none;
 }
-
 .done{
   background:orange;
   color:white;
 }
-
 #bingo{
   margin-top:15px;
   font-size:20px;
@@ -53,7 +48,7 @@ select{
 <div id="bingo"></div>
 
 <script>
-const API="https://script.google.com/macros/s/AKfycbx0ntU_GSqSeEyrDWz0ycADO0_GnV5ynBzKidDEoBexKETndVAh2VmFh_bG_U7pS3EL/exec";
+const API="https://script.google.com/macros/s/AKfycbw4x60gkyKeZoNIzHPURpDzSf330S5ZhRchAr1jOvlIrWLeqHQ8vRa08iPH_ARNS3Oh/exec";
 
 let currentId=null;
 let currentStatus={};
@@ -65,12 +60,12 @@ function loadUsers(){
  .then(r=>r.json())
  .then(users=>{
    const select=document.getElementById("userSelect");
-   for(let i=1;i<users.length;i++){
+   users.forEach(u=>{
      const opt=document.createElement("option");
-     opt.value=users[i][0];
-     opt.textContent=users[i][1];
+     opt.value=u[0];
+     opt.textContent=u[1];
      select.appendChild(opt);
-   }
+   });
  });
 }
 
@@ -98,7 +93,7 @@ function draw(bingo){
 
  for(let i=1;i<=9;i++){
 
-   const text=items[i]?items[i][1]:"";
+   const text=items[i-1]?items[i-1][1]:"";
    const done=currentStatus[i]?"done":"";
 
    html+=`
@@ -112,15 +107,13 @@ function draw(bingo){
    bingo>0 ? "🎉 "+bingo+" BINGO" : "";
 }
 
-/* タップ処理（超高速版） */
+/* タップ処理 */
 function toggle(no){
 
- // 即時UI切替
  currentStatus[no]=!currentStatus[no];
  document.getElementById("cell"+no)
    .classList.toggle("done");
 
- // GASへ1回だけ送信（再取得なし）
  fetch(API,{
    method:"POST",
    body:new URLSearchParams({
